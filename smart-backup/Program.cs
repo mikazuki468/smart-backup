@@ -1,4 +1,5 @@
-﻿using smart_backup.Service;
+﻿using Microsoft.Extensions.Logging;
+using smart_backup.Service;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -19,7 +20,7 @@ namespace smart_backup
             Business result = new Business();
 
             result.generateExecuteScript(username, token, pathProject, pathBackup);
-            result.generateLogGit();
+           // result.generateLogGit();
 
             #endregion
 

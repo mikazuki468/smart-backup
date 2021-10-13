@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LibGit2Sharp;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,16 +8,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace smart_backup.Service
 {
     public class Business
     {
-
+   
+        private readonly ILogger<Business> _logger;
         //TODO Inserire ILogger
-
-        public void generateExecuteScript(string username, string token, string pathProject, string pathBackup)
+        public Business(ILogger<Business> logger)
         {
-            string resultScript = string.Format("clone https://{0}:{1}@dev.azure.com{2}",username,token,pathProject);
+            _logger = logger;
+        }
+
+
+        public void generateExecuteScript(string gitUser, string gitToken, string pathProject, string pathBackup)
+        {
+            //string resultScript = string.Format("clone https://{0}:{1}@dev.azure.com{2}",username,token,pathProject);
             //ProcessStartInfo p = new ProcessStartInfo();
 
             #region Prima prova 
@@ -34,52 +43,59 @@ namespace smart_backup.Service
 
             using (Process process = new Process())
             {
+                
+                string sourceUrl = "https://SmartBackup2@dev.azure.com/SmartBackup2/GuruFake2/_git/GuruFake2";
+                string workdirPath = "C:\\repo";
+                CloneOptions co = new CloneOptions();
+                co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = gitUser, Password = gitToken };
+                _logger.LogInformation("inizio clonazione repo {0}", sourceUrl);
+                LibGit2Sharp.Repository.Clone(sourceUrl, workdirPath,co);
+                
+                //process.StartInfo.WorkingDirectory = pathBackup;
+                //process.StartInfo.FileName = "git.exe";
+                //process.StartInfo.UseShellExecute = false;
+                //process.StartInfo.RedirectStandardOutput = true;
+                //process.StartInfo.Arguments = resultScript;
+                //process.Start();
 
-                process.StartInfo.WorkingDirectory = pathBackup;
-                process.StartInfo.FileName = "git.exe";
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.Arguments = resultScript;
-                process.Start();
+                //// Synchronously read the standard output of the spawned process.
+                //StreamReader reader = process.StandardOutput;
+                //string output = reader.ReadToEnd();
 
-                // Synchronously read the standard output of the spawned process.
-                StreamReader reader = process.StandardOutput;
-                string output = reader.ReadToEnd();
+                //// Write the redirected output to this application's window.
+                //Console.WriteLine(output);
+                ////File.WriteAllText("output.txt", output);
 
-                // Write the redirected output to this application's window.
-                Console.WriteLine(output);
-                //File.WriteAllText("output.txt", output);
-
-                process.WaitForExit();
+                //process.WaitForExit();
 
             }
 
         }
 
-        public void generateLogGit()
-        {
-            string log = string.Format("log");
-            
-            using (Process process = new Process())
-            {
-                process.StartInfo.FileName = "git.exe";
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.Arguments = log;
-                process.Start();
+        //public void generateLogGit()
+        //{
+        //    string log = string.Format("log");
 
-                StreamReader reader = process.StandardOutput;
-                string output = reader.ReadToEnd();
+        //    using (Process process = new Process())
+        //    {
+        //        process.StartInfo.FileName = "git.exe";
+        //        process.StartInfo.UseShellExecute = false;
+        //        process.StartInfo.RedirectStandardOutput = true;
+        //        process.StartInfo.Arguments = log;
+        //        process.Start();
 
-                File.WriteAllText("output.txt", output);
+        //        StreamReader reader = process.StandardOutput;
+        //        string output = reader.ReadToEnd();
 
-                process.WaitForExit();
-            }
+        //        File.WriteAllText("output.txt", output);
 
-            Console.WriteLine("\n\nPress any key to exit.");
-            Console.ReadLine();
-        }
+        //        process.WaitForExit();
+        //    }
 
+        //    Console.WriteLine("\n\nPress any key to exit.");
+        //    Console.ReadLine();
+        //}
+        
     }
 
     
