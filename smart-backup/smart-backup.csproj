@@ -6,4 +6,8 @@
     <RootNamespace>smart_backup</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Config\" />
+  </ItemGroup>
+
 </Project>
