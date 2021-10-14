@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using smart_backup.Service;
 using System;
 using System.Diagnostics;
@@ -6,26 +7,27 @@ using System.IO;
 
 namespace smart_backup
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            #region Prima prova
-
-            string pathBackup = "C:\\";
-            string username = "devopsbackup";
-            string token = "4y6ttu45wxyo2gebg2xzbk3wqkte66atuhwi7xhku6zmy6g6ss3a";
-            string pathProject = "/SmartBackup2/GuruFake2/_git/GuruFake2";
-
-            Business result = new Business();
-
-            result.generateExecuteScript(username, token, pathProject, pathBackup);
-           // result.generateLogGit();
-
-            #endregion
-
-
-
+            #region aggiungo Ilogger
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            using (ServiceProvider serviceProvider = services.BuildServiceProvider())
+            {
+                Business app = serviceProvider.GetService<Business>();
+                // Start up logic here
+                app.Run();
+                #endregion
+            }
         }
+
+            private static void ConfigureServices(ServiceCollection services)
+            {
+                services.AddLogging(configure => configure.AddConsole())
+                .AddTransient<Business>();
+            }
+        
     }
 }

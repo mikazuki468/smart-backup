@@ -14,15 +14,24 @@ namespace smart_backup.Service
     public class Business
     {
    
-        private readonly ILogger<Business> _logger;
+        private readonly ILogger _logger;
         //TODO Inserire ILogger
         public Business(ILogger<Business> logger)
         {
             _logger = logger;
         }
 
+        internal void Run()
+        {
+            _logger.LogInformation("Application Started at {dateTime}", DateTime.UtcNow);
 
-        public void generateExecuteScript(string gitUser, string gitToken, string pathProject, string pathBackup)
+            //Business Logic START
+            generateExecuteScript();
+            //Business logic END
+            _logger.LogInformation("Application Ended at {dateTime}", DateTime.UtcNow);
+        }
+
+        public void generateExecuteScript()
         {
             //string resultScript = string.Format("clone https://{0}:{1}@dev.azure.com{2}",username,token,pathProject);
             //ProcessStartInfo p = new ProcessStartInfo();
@@ -43,7 +52,10 @@ namespace smart_backup.Service
 
             using (Process process = new Process())
             {
-                
+                string pathBackup = "C:\\GuruFake2";
+                string gitUser = "devopsbackup";
+                string gitToken = "4y6ttu45wxyo2gebg2xzbk3wqkte66atuhwi7xhku6zmy6g6ss3a";
+                string pathProject = "/SmartBackup2/GuruFake2/_git/GuruFake2";
                 string sourceUrl = "https://SmartBackup2@dev.azure.com/SmartBackup2/GuruFake2/_git/GuruFake2";
                 string workdirPath = "C:\\repo";
                 CloneOptions co = new CloneOptions();
@@ -51,6 +63,7 @@ namespace smart_backup.Service
                 _logger.LogInformation("inizio clonazione repo {0}", sourceUrl);
                 LibGit2Sharp.Repository.Clone(sourceUrl, workdirPath,co);
                 
+                #region prova riga comando
                 //process.StartInfo.WorkingDirectory = pathBackup;
                 //process.StartInfo.FileName = "git.exe";
                 //process.StartInfo.UseShellExecute = false;
@@ -67,36 +80,12 @@ namespace smart_backup.Service
                 ////File.WriteAllText("output.txt", output);
 
                 //process.WaitForExit();
+                #endregion 
 
             }
 
         }
 
-        //public void generateLogGit()
-        //{
-        //    string log = string.Format("log");
-
-        //    using (Process process = new Process())
-        //    {
-        //        process.StartInfo.FileName = "git.exe";
-        //        process.StartInfo.UseShellExecute = false;
-        //        process.StartInfo.RedirectStandardOutput = true;
-        //        process.StartInfo.Arguments = log;
-        //        process.Start();
-
-        //        StreamReader reader = process.StandardOutput;
-        //        string output = reader.ReadToEnd();
-
-        //        File.WriteAllText("output.txt", output);
-
-        //        process.WaitForExit();
-        //    }
-
-        //    Console.WriteLine("\n\nPress any key to exit.");
-        //    Console.ReadLine();
-        //}
         
     }
-
-    
 }
