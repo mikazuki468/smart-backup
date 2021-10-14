@@ -34,16 +34,20 @@ namespace SmartBackup.service
         {
             using (Process process = new Process())
             {
-                string pathBackup = "C:\\GuruFake2";
+                
                 string gitUser = "devopsbackup";
                 string gitToken = "4y6ttu45wxyo2gebg2xzbk3wqkte66atuhwi7xhku6zmy6g6ss3a";
-                string pathProject = "/SmartBackup2/GuruFake2/_git/GuruFake2";
                 string sourceUrl = "https://SmartBackup2@dev.azure.com/SmartBackup2/GuruFake2/_git/GuruFake2";
-                string workdirPath = "C:\\repo";
+
+                string nameProject = "GuruFake2";
+                string workdirPath = "C:\\"+nameProject;
                 CloneOptions co = new CloneOptions();
                 co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = gitUser, Password = gitToken };
                 _logger.LogInformation("inizio clonazione repo {0}", sourceUrl);
+                
+                
                 LibGit2Sharp.Repository.Clone(sourceUrl, workdirPath, co);
+                
             }
         }
 
