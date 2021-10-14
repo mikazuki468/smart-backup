@@ -3,53 +3,35 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace smart_backup.Service
+namespace SmartBackup.service
 {
     public class Business
     {
-   
+
         private readonly ILogger _logger;
-        //TODO Inserire ILogger
         public Business(ILogger<Business> logger)
         {
             _logger = logger;
-        }
 
+        }
         internal void Run()
         {
             _logger.LogInformation("Application Started at {dateTime}", DateTime.UtcNow);
 
             //Business Logic START
+
             generateExecuteScript();
+
             //Business logic END
             _logger.LogInformation("Application Ended at {dateTime}", DateTime.UtcNow);
         }
 
-        public void generateExecuteScript()
+        private void generateExecuteScript()
         {
-            //string resultScript = string.Format("clone https://{0}:{1}@dev.azure.com{2}",username,token,pathProject);
-            //ProcessStartInfo p = new ProcessStartInfo();
-
-            #region Prima prova 
-            //p.FileName = "git.exe";
-            //p.Arguments = resultScript;
-            //p.UseShellExecute = false;
-            //p.RedirectStandardOutput = true;
-
-            //Process proStart = new Process();
-            //proStart.StartInfo = p;
-            //proStart.Start();            
-            //await File.WriteAllTextAsync("output.txt",proStart.StandardOutput.ReadToEnd());
-            //proStart.WaitForExit();
-            ////return resultScript;
-            #endregion
-
             using (Process process = new Process())
             {
                 string pathBackup = "C:\\GuruFake2";
@@ -61,31 +43,9 @@ namespace smart_backup.Service
                 CloneOptions co = new CloneOptions();
                 co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = gitUser, Password = gitToken };
                 _logger.LogInformation("inizio clonazione repo {0}", sourceUrl);
-                LibGit2Sharp.Repository.Clone(sourceUrl, workdirPath,co);
-                
-                #region prova riga comando
-                //process.StartInfo.WorkingDirectory = pathBackup;
-                //process.StartInfo.FileName = "git.exe";
-                //process.StartInfo.UseShellExecute = false;
-                //process.StartInfo.RedirectStandardOutput = true;
-                //process.StartInfo.Arguments = resultScript;
-                //process.Start();
-
-                //// Synchronously read the standard output of the spawned process.
-                //StreamReader reader = process.StandardOutput;
-                //string output = reader.ReadToEnd();
-
-                //// Write the redirected output to this application's window.
-                //Console.WriteLine(output);
-                ////File.WriteAllText("output.txt", output);
-
-                //process.WaitForExit();
-                #endregion 
-
+                LibGit2Sharp.Repository.Clone(sourceUrl, workdirPath, co);
             }
-
         }
 
-        
     }
 }
