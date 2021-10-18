@@ -1,11 +1,15 @@
 ﻿using LibGit2Sharp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
+using smart_backup.DTO;
+using smart_backup.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +34,8 @@ namespace SmartBackup.service
 
             try
             {
-                generateExecuteScript();
+                //generateExecuteScript();
+                JsonReader("C:\\Users\\roberto.galanti\\source\\repos\\smart-backup\\smart-backup\\Config\\response.json");
             }
             catch (Exception ex)
             {
@@ -71,6 +76,28 @@ namespace SmartBackup.service
                 }
 
 
+            }
+        }
+
+
+        public void JsonReader(string pathJason)
+        {
+            
+
+            try
+            {
+                string jsonFromFile;
+                using (var reader = new StreamReader(pathJason))
+                {
+                    jsonFromFile = reader.ReadToEnd();
+                    GitResponse GitRepoFromJson=JsonConvert.DeserializeObject<GitResponse>(jsonFromFile);
+                }
+               
+            }
+            catch (Exception ex)
+            {
+
+                Log.Error(ex, "file non trovato");
             }
         }
 
