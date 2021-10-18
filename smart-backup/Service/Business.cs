@@ -14,6 +14,7 @@ namespace SmartBackup.service
 {
     public class Business
     {
+        //
         internal void Run()
         {
             Log.Logger = new LoggerConfiguration()
