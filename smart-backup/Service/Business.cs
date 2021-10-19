@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -37,7 +39,6 @@ namespace SmartBackup.service
             try
             {
                 //TODO costruire la org
-                //string nomeOrg = "SmartBackup1";
 
                 List<string> ListOrganization = GetListOrganization(@"C:\Users\roberto.galanti\source\repos\smart-backup\smart-backup\Config\ListOrganization.txt");
 
@@ -47,10 +48,11 @@ namespace SmartBackup.service
 
                     GitProjectsJson ListProject = JsonProjectsReader(@"C:\Users\roberto.galanti\source\repos\smart-backup\smart-backup\Config\ProjectResponse.json");
 
-
                     GitOrgDTO currentOrg = new GitOrgDTO(nomeOrg, ListProject);
                     generateExecuteScript(currentOrg);
-
+                    
+                    ZipFile.CreateFromDirectory(@"C:\SmartBackup1", @"C:\prova\SmartBackup1.zip");
+                    Directory.Delete(@"C:\" + nomeOrg);
                 }
                 
 
@@ -118,14 +120,53 @@ namespace SmartBackup.service
                 foreach (var proj in CurrentOrg.Projects.value)
                 {
                     string url = "https://" + CurrentOrg.NameOrganization + "@dev.azure.com/" + CurrentOrg.NameOrganization + "/" + proj.name + "/_git/" + proj.name;
-                    Log.Information("inizio clonazione repo {0}", url);
+                    
 
                     try
                     {
-                        //workdirPath=workdirPath+CurrentOrg.NameOrganization+"\\"+proj.name;
                         string workdirPath = "C:\\" + CurrentOrg.NameOrganization + "\\" + proj.name;
+
+                        #region pull
+                        //if (Directory.Exists(workdirPath))
+                        //{
+                        //    //pull
+                        //    Log.Information("inizio pull repo {0}", url);
+
+                        //    ProcessStartInfo gitInfo = new ProcessStartInfo();
+                        //    gitInfo.CreateNoWindow = true;
+                        //    gitInfo.RedirectStandardError = true;
+                        //    gitInfo.RedirectStandardOutput = true;
+                        //    //gitInfo.FileName = YOUR_GIT_INSTALLED_DIRECTORY + @"\bin\git.exe";
+
+                        //    Process gitProcess = new Process();
+                        //    gitInfo.Arguments = ""; // such as "fetch orign"
+                        //    gitInfo.WorkingDirectory = work;
+
+                        //    gitProcess.StartInfo = gitInfo;
+                        //    gitProcess.Start();
+
+                        //    string stderr_str = gitProcess.StandardError.ReadToEnd();  // pick up STDERR
+                        //    string stdout_str = gitProcess.StandardOutput.ReadToEnd(); // pick up STDOUT
+
+                        //    gitProcess.WaitForExit();
+                        //    gitProcess.Close();
+
+
+                        //    Log.Information("fine pull repo {0}", url);
+                        //}
+                        //else
+                        //{
+                        //}
+                        #endregion
+
+                        //clone
+
+                        Log.Information("inizio clonazione repo {0}", url);
                         LibGit2Sharp.Repository.Clone(url, workdirPath, co);
                         Log.Information("fine clonazione repo {0}", url);
+
+                        
+                       
                     }
                     catch (Exception ex)
                     {
