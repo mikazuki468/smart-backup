@@ -7,6 +7,7 @@ namespace SmartBackup
 {
     public class Program
     {
+   
         static void Main(string[] args)
         {
             var services = new ServiceCollection();

@@ -7,6 +7,7 @@ using Serilog;
 using Serilog.Events;
 using smart_backup.DTO;
 using smart_backup.Model;
+using smart_backup.Service;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +23,7 @@ namespace SmartBackup.service
 {
     public class Business
     {
-        //
+        
         internal void Run()
         {
             Log.Logger = new LoggerConfiguration()
@@ -32,27 +33,21 @@ namespace SmartBackup.service
             .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
             .CreateLogger();
 
+            
+
             Log.Information("Application Started at {dateTime}", DateTime.UtcNow);
 
             //Business Logic START
-
+            List<String> ListOrganization = File.ReadAllLines(PathFileBusiness.pathFileOrg).ToList();
             try
             {
-                //TODO costruire la org
-
-                List<string> ListOrganization = GetListOrganization(@"C:\Users\roberto.galanti\source\repos\smart-backup\smart-backup\Config\ListOrganization.txt");
 
                 foreach (var nomeOrg in ListOrganization)
                 {
-                    RequestApiAllProjectByOrganization(nomeOrg);
-
-                    GitProjectsJson ListProject = JsonProjectsReader(@"C:\Users\roberto.galanti\source\repos\smart-backup\smart-backup\Config\ProjectResponse.json");
-
-                    GitOrgDTO currentOrg = new GitOrgDTO(nomeOrg, ListProject);
-                    generateExecuteScript(currentOrg);
-                    
-                    ZipFile.CreateFromDirectory(@"C:\SmartBackup1", @"C:\prova\SmartBackup1.zip");
-                    Directory.Delete(@"C:\" + nomeOrg);
+                                        
+                    generateExecuteScript(nomeOrg);
+                    ZipFile.CreateFromDirectory(PathFileBusiness.tempClone + nomeOrg, PathFileBusiness.rootBackup + nomeOrg + ".zip");
+   
                 }
                 
 
@@ -66,45 +61,20 @@ namespace SmartBackup.service
 
             //Business logic END
             Log.Information("Application Ended at {dateTime}", DateTime.UtcNow);
+            Directory.Delete(PathFileBusiness.tempClone, true);
         }
 
-        public static async void RequestApiAllProjectByOrganization(string nomeOrg)
+        private void generateExecuteScript(string nomeOrg)
         {
-            try
-            {
-                var personalaccesstoken = "4y6ttu45wxyo2gebg2xzbk3wqkte66atuhwi7xhku6zmy6g6ss3a";
-
-                using (HttpClient client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(string.Format("{0}:{1}", "", personalaccesstoken))));
-
-                    using (HttpResponseMessage response = client.GetAsync("https://dev.azure.com/"+nomeOrg+"/_apis/projects").GetAwaiter().GetResult())
-                    {
-                        response.EnsureSuccessStatusCode();
-                        string responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                        Console.WriteLine(responseBody);
-                  
-                        File.WriteAllText(@"C:\Users\roberto.galanti\source\repos\smart-backup\smart-backup\Config\ProjectResponse.json", responseBody);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-        }
-
-        private void generateExecuteScript(GitOrgDTO CurrentOrg)
-        {
+            GitRepository.RequestApiAllProjectByOrganization(nomeOrg);
+            GitProjectsJson ListProject = GitRepository.JsonProjectsReader();
+            GitOrgDTO currentOrg = new GitOrgDTO(nomeOrg, ListProject);
+            
             using (Process process = new Process())
             {
 
                 string gitUser = "devopsbackup";
                 string gitToken = "4y6ttu45wxyo2gebg2xzbk3wqkte66atuhwi7xhku6zmy6g6ss3a";
-
-
 
                 CloneOptions co = new CloneOptions();
                 co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = gitUser, Password = gitToken };
@@ -117,14 +87,14 @@ namespace SmartBackup.service
                 //};
 
 
-                foreach (var proj in CurrentOrg.Projects.value)
+                foreach (var proj in currentOrg.Projects.value)
                 {
-                    string url = "https://" + CurrentOrg.NameOrganization + "@dev.azure.com/" + CurrentOrg.NameOrganization + "/" + proj.name + "/_git/" + proj.name;
+                    string url = "https://" + currentOrg.NameOrganization + "@dev.azure.com/" + currentOrg.NameOrganization + "/" + proj.name + "/_git/" + proj.name;
                     
 
                     try
                     {
-                        string workdirPath = "C:\\" + CurrentOrg.NameOrganization + "\\" + proj.name;
+                        string workdirPath = PathFileBusiness.tempClone + currentOrg.NameOrganization + "\\" + proj.name;
 
                         #region pull
                         //if (Directory.Exists(workdirPath))
@@ -164,8 +134,6 @@ namespace SmartBackup.service
                         Log.Information("inizio clonazione repo {0}", url);
                         LibGit2Sharp.Repository.Clone(url, workdirPath, co);
                         Log.Information("fine clonazione repo {0}", url);
-
-                        
                        
                     }
                     catch (Exception ex)
@@ -179,40 +147,7 @@ namespace SmartBackup.service
             }
         }
 
-
-        public GitProjectsJson JsonProjectsReader(string pathProjectsJson)
-        {
-
-            try
-            {
-                string jsonFromFile;
-                using (var reader = new StreamReader(pathProjectsJson))
-                {
-                    GitProjectsJson ListProjects = new GitProjectsJson();
-                    jsonFromFile = reader.ReadToEnd();
-                    ListProjects = JsonConvert.DeserializeObject<GitProjectsJson>(jsonFromFile);
-                    return ListProjects;
-                }
-
-            }
-            catch (Exception ex)
-            {
-
-                Log.Error(ex, "file non trovato");
-                return null;
-            }
-        }
-
-        public List<String> GetListOrganization(string pathOrganizationFile)
-        {
-            List<String> ListOrganization = File.ReadAllLines(pathOrganizationFile).ToList();
-
-            return ListOrganization;
-        }
-
-
         
-
-
+        
     }
 }
