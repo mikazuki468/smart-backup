@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace smart_backup.DTO
 {
-    public class GitResponse
+    public class GitProjectsJson
     {
         public int count { get; set; }
-        public List<GitRepoDTO> value { get; set; }
+        public List<GitProjectDTO> value { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace smart_backup.Model
 {
-    public class GitRepoDTO
+    public class GitProjectDTO
     {
         public string id { get; set; }
         public string name { get; set; }
