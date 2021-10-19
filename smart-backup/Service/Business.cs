@@ -45,8 +45,10 @@ namespace SmartBackup.service
                 foreach (var nomeOrg in ListOrganization)
                 {
                                         
-                    generateExecuteScript(nomeOrg);
-                    ZipFile.CreateFromDirectory(PathFileBusiness.tempClone + nomeOrg, PathFileBusiness.rootBackup + nomeOrg + ".zip");
+                   generateExecuteScript(nomeOrg);
+                   string ZipPath = PathFileBusiness.rootBackup + nomeOrg + ".zip";
+                   string FolderFromZipLocation = PathFileBusiness.tempClone + nomeOrg;
+                   ZipTheFolder(ZipPath,FolderFromZipLocation);
    
                 }
                 
@@ -64,6 +66,22 @@ namespace SmartBackup.service
 
             DeleteDirectory(PathFileBusiness.tempClone);
             
+        }
+
+        private void ZipTheFolder(string ZipPath,string FolderFromZipLocation)
+        {
+            try
+            {
+                if (File.Exists(ZipPath))
+                {
+                    File.Delete(ZipPath);
+                }
+                ZipFile.CreateFromDirectory(FolderFromZipLocation, ZipPath);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error when zip: {ex.Message}");
+            }
         }
 
         public static void DeleteDirectory(string target_dir)
