@@ -1,8 +1,4 @@
 ﻿using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
 using smart_backup.DTO;
@@ -14,10 +10,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartBackup.service
 {
