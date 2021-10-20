@@ -31,7 +31,7 @@ namespace smart_backup.Service
                     {
                         response.EnsureSuccessStatusCode();
                         string responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                        Console.WriteLine(responseBody);
+                        //Console.WriteLine(responseBody);
 
                         File.WriteAllText(PathFileBusiness.pathFileProjects, responseBody);
                     }

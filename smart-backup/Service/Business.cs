@@ -29,13 +29,13 @@ namespace SmartBackup.service
             Log.Logger = new LoggerConfiguration()
             //.ReadFrom.AppSettings()
             .MinimumLevel.Debug()
-            .WriteTo.File("output.txt", restrictedToMinimumLevel: LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+            .WriteTo.File(PathFileBusiness.LogFile, restrictedToMinimumLevel: LogEventLevel.Information, rollingInterval: RollingInterval.Day)
             .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
             .CreateLogger();
 
-            
-
             Log.Information("Application Started at {dateTime}", DateTime.UtcNow);
+
+            DeleteDirectory(PathFileBusiness.tempClone);
 
             //Business Logic START
             List<String> ListOrganization = File.ReadAllLines(PathFileBusiness.pathFileOrg).ToList();
@@ -46,9 +46,7 @@ namespace SmartBackup.service
                 {
                                         
                    generateExecuteScript(nomeOrg);
-                   string ZipPath = PathFileBusiness.rootBackup + nomeOrg + ".zip";
-                   string FolderFromZipLocation = PathFileBusiness.tempClone + nomeOrg;
-                   ZipTheFolder(ZipPath,FolderFromZipLocation);
+                   
    
                 }
                 
@@ -64,8 +62,12 @@ namespace SmartBackup.service
             //Business logic END
             Log.Information("Application Ended at {dateTime}", DateTime.UtcNow);
 
+            string ZipPath = PathFileBusiness.tempClone + ".zip";
+            string FolderToZip = PathFileBusiness.tempClone;
+
+
+            ZipTheFolder(ZipPath, FolderToZip);
             DeleteDirectory(PathFileBusiness.tempClone);
-            
         }
 
         private void ZipTheFolder(string ZipPath,string FolderFromZipLocation)
@@ -80,27 +82,31 @@ namespace SmartBackup.service
             }
             catch (Exception ex)
             {
-                Log.Error("Error when zip: {ex.Message}");
+                Log.Error("Error when zip:", ex);
             }
         }
 
         public static void DeleteDirectory(string target_dir)
         {
-            string[] files = Directory.GetFiles(target_dir);
-            string[] dirs = Directory.GetDirectories(target_dir);
-
-            foreach (string file in files)
+            if (Directory.Exists(target_dir))
             {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
+                string[] files = Directory.GetFiles(target_dir);
+                string[] dirs = Directory.GetDirectories(target_dir);
 
-            foreach (string dir in dirs)
-            {
-                DeleteDirectory(dir);
-            }
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
 
-            Directory.Delete(target_dir, false);
+                foreach (string dir in dirs)
+                {
+                    DeleteDirectory(dir);
+                }
+
+                Directory.Delete(target_dir, false);
+            }
+            
         }
 
         private void generateExecuteScript(string nomeOrg)
@@ -133,7 +139,7 @@ namespace SmartBackup.service
 
                     try
                     {
-                        string workdirPath = PathFileBusiness.tempClone + currentOrg.NameOrganization + "\\" + proj.name;
+                        string workdirPath = PathFileBusiness.tempClone+ "\\" + currentOrg.NameOrganization + "\\" + proj.name;
 
                         #region pull
                         //if (Directory.Exists(workdirPath))
